@@ -1,0 +1,8 @@
+input:checked+p {
+  text-decoration: line-through;
+}
+
+
+.check-list p{
+  display: inline-block;
+}

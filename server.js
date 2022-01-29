@@ -3,7 +3,9 @@ const bodyParser = require("body-parser");
 const https = require("https");
 
 
+
 const app = express();
+app.set('view engine', 'ejs');
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended:true}));
 // const port = 3000;
@@ -22,24 +24,32 @@ app.get("/projects", (req, res)=>{
 
 
 // ******FUN PAGE
-app.get("/fun/calculator.html", (req, res)=>{
-  res.sendFile(__dirname+"/calculator.html");
+let loveRate = "";
+app.get("/fun/love-calculator", (req, res)=>{
+  res.render('love-calculator', {loveRateVariable: loveRate, titleName : "Love Calculator"});
 })
 
 app.get("/fun/bmi-calculator.html", (req, res)=>{
   res.sendFile(__dirname+"/bmi-calculator.html");
 })
 
-app.post("/fun/calculator.html",(req, res)=>{
+
+app.post("/fun/love-calculator",(req, res)=>{
   // tapping the vaules of FORM from request and body parser-parsed as text
   // console.log(req.body);
   // console.log(req.body.num1);
 
-  var num1 = Number(req.body.num1);
-  var num2 = Number(req.body.num2);
-  var result = num1+num2;
-  res.send("Result of the calculation is " + result);
+  // var num1 = Number(req.body.num1);
+  // var num2 = Number(req.body.num2);
+  // var result = num1+num2;
+  // res.send("Result of the calculation is " + result);
+
+  loveRate = Math.round(Math.random()*101);
+  res.redirect("/fun/love-calculator");
+
 })
+
+
 
 app.post("/fun/bmi-calculator.html",(req, res)=>{
   function bmiCalculator(weight,height){
@@ -158,6 +168,53 @@ app.post("/failure", function(req, res){
 
 // audience id
 // 2ed4441bc9
+
+// *****************EJS TEMPLATE
+
+// ***TO DO LIST
+
+
+
+app.get("/mysite",(req,res)=>{
+  res.render('mySite',{foo : "FOO"});
+});
+
+var listItems = [];
+let workListItems = [];
+function todayDate(){
+  let date = new Date();
+  let currentDate = date.getDay();
+  const options = {
+        weekday: 'long',
+        // year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      };
+      return date.toLocaleDateString('en-us', options);
+}
+
+app.get("/to-do-list",(req,res)=>{
+  let currentDay = todayDate();
+  res.render('list',{kindOfDay : currentDay, newListItem : listItems, listTitle : "Home", titleName: "Todo List-Home"});
+  // console.log(date.toLocaleString('en-US', options));
+});
+app.post("/to-do-list",(req,res)=>{
+  let listItem = req.body.listItem;
+  if(req.body.list == "Work"){
+    workListItems.push(listItem);
+    res.redirect("/to-do-list-work");
+  }else{
+    listItems.push(listItem);
+    res.redirect("/to-do-list");
+  }
+
+
+})
+
+app.get("/to-do-list-work", (req, res)=>{
+    let currentDay = todayDate();
+    res.render('list',{kindOfDay : currentDay, newListItem : workListItems, listTitle : "Work",titleName: "Todo List-Work"});
+});
 
 
 
