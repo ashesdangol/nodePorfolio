@@ -5,7 +5,7 @@ const https = require("https");
 
 
 const app = express();
-
+app.set('view engine', 'ejs');
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended:true}));
 // const port = 3000;
@@ -29,9 +29,6 @@ app.get("/fun/love-calculator", (req, res)=>{
   res.render('love-calculator', {loveRateVariable: loveRate, titleName : "Love Calculator"});
 })
 
-app.get("/fun/bmi-calculator.html", (req, res)=>{
-  res.sendFile(__dirname+"/bmi-calculator.html");
-})
 
 
 app.post("/fun/love-calculator",(req, res)=>{
@@ -49,72 +46,76 @@ app.post("/fun/love-calculator",(req, res)=>{
 
 })
 
+let bmi='';
 
+app.get("/fun/bmi-calculator", (req, res)=>{
+  res.render("bmi-calculator",{
+    titleName: "BMI Calculator",
+    bmiVar: bmi
+  });
+})
 
-app.post("/fun/bmi-calculator.html",(req, res)=>{
-  function bmiCalculator(weight,height){
-      var bmi = Math.round(weight / Math.pow(height,2));
-      return Math.round(bmi);
-  }
-  var weight = Number(req.body.weight);
-  var height = Number(req.body.height);
-  if(bmiCalculator(weight, height)<1){
-    
-    res.write("Please enter your Weights in kg and Height in meter");
-  }else{
-    
-    res.write("Your BMI is " + bmiCalculator(weight,height))
-  }
-  res.send();
+app.post("/fun/bmi-calculator",(req, res)=>{
+  let weight = Number(req.body.weight);
+  let height = Number(req.body.height);
+
+  let rawBmi =  weight / Math.pow(height,2);
+  bmi = Math.round(rawBmi *10) / 10;
+   res.redirect("/fun/bmi-calculator");
+
 })
 
 // ******* KANYE REST PAGE
 
-app.get("/apiUsage/kanye-rest.html", (req,res)=>{
+app.get("/apiUsage/kanye-quotes", (req,res)=>{
   const urlKanye = "https://api.kanye.rest";
   https.get(urlKanye,(response)=>{
   response.on("data", (data)=>{
-    let kanyeQuote = JSON.parse(data);
-    
-    res.write("<h1>Kanye Rest Quote</h1>");
-    res.write("<p> '"+kanyeQuote.quote+" '</p>");
-    res.send();
-
-  })
+    let kanyeParsed = JSON.parse(data);
+    let kanyeQuote =kanyeParsed.quote;
+    res.render("kanye-quotes",{
+      titleName:"Kanye Quotes",
+      kanyeQuoteVar:kanyeQuote
+    });
+      })
   })
 
 })
 
 // ***** WEATHER APP
+let temp = '';
+let description ='' ;
+let iconUrl = "";
+let weatherLocation='';
 
 
-app.get("/apiUsage/weather-app.html", (req,res)=>{
-  res.sendFile(__dirname+"/weather-app.html")
+app.get("/apiUsage/check-weather", (req,res)=>{
+  res.render('check-weather',{
+    titleName: "Weather Check",
+    weatherLocationVar: weatherLocation,
+    tempVar: temp,
+    iconUrlVar:iconUrl,
+    descriptionVar:description
+  });
 });
 
-app.post("/apiUsage/weather-app.html", (req, res)=>{
+app.post("/apiUsage/check-weather", (req, res)=>{
 
   const weatherApiKey = "8d8d5ba8c9233eac60fa3e4ebad545c5";
   const weatherEndpoint = "https://api.openweathermap.org/data/2.5/weather";
-  const weatherLocation = req.body.cityName;
+  weatherLocation = req.body.cityName;
   const weatherUrl = weatherEndpoint+"?q="+weatherLocation+"&units=metric&appid="+weatherApiKey;
 
   https.get(weatherUrl,(response)=>{
-    console.log(response);
-    response.on("data", (data)=>{
-      const weatherData = JSON.parse(data)
-      const temp = weatherData.main.temp
-      const description = weatherData.weather[0].description
+      console.log(response);
+      response.on("data", (data)=>{
+       const weatherData = JSON.parse(data)
+       temp = weatherData.main.temp
+       description = weatherData.weather[0].description
       const icon = weatherData.weather[0].icon
-      const iconUrl = " http://openweathermap.org/img/wn/"+icon+"@2x.png"
-      
-      res.write("<h1>Current weather of "+ weatherLocation+" </h1>")
-      res.write("Temparature :"+temp+"<br/>")
-      res.write("Description : "+description+"<br>")
-      res.write("<img src='"+iconUrl+"'>")
-      res.send()
-      //
-      // console.log(weatherData);
+       iconUrl = " http://openweathermap.org/img/wn/"+icon+"@2x.png"
+      res.redirect("/apiUsage/check-weather");
+
     })
   })
 });

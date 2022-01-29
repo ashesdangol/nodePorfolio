@@ -1,0 +1,21 @@
+<%- include("header") -%>
+
+  <h1>BMI Calculator</h1>
+
+  <form class="" action="/fun/bmi-calculator" method="post">
+    <input type="text" name="weight" placeholder="Weight in kg">
+    <input type="text" name="height" placeholder="Height in meter">
+    <button type="submit" name="submit">Calculate</button>
+  </form>
+
+  <% if(bmiVar === ""){%>
+      <p></p>
+  <%}else if(bmiVar < 1){%>
+    <p>Please enter your Weight in kg and Height in meters</p>
+  <%}else{%>
+    <h3> Your bmi is <%= bmiVar%> </h3>
+  <%}%>
+
+
+
+<%- include("footer") -%>
