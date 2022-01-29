@@ -108,15 +108,21 @@ app.post("/apiUsage/check-weather", (req, res)=>{
 
   https.get(weatherUrl,(response)=>{
       console.log(response);
-      response.on("data", (data)=>{
-       const weatherData = JSON.parse(data)
-       temp = weatherData.main.temp
-       description = weatherData.weather[0].description
-      const icon = weatherData.weather[0].icon
-       iconUrl = " http://openweathermap.org/img/wn/"+icon+"@2x.png"
-      res.redirect("/apiUsage/check-weather");
+      if(response.statusCode === 200){
+        response.on("data", (data)=>{
+         const weatherData = JSON.parse(data)
+         temp = weatherData.main.temp
+         description = weatherData.weather[0].description
+        const icon = weatherData.weather[0].icon
+         iconUrl = " http://openweathermap.org/img/wn/"+icon+"@2x.png"
+        res.redirect("/apiUsage/check-weather");
 
-    })
+      })
+      }else{
+        res.send("Oops something went wrong. Please try again!");
+        // res.sendFile(__dirname+"/failure.html");
+      }
+
   })
 });
 
