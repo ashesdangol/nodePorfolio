@@ -1,0 +1,20 @@
+<%- include("header") -%>
+    <section>
+      <h1> <%= kindOfDay %> </h1>
+
+      <h3>TO DO LIST: <%= listTitle%></h3>
+      <div class="check-list">
+        <% for (var i=0; i < newListItem.length; i++) { %>
+        <input type="checkbox"><p><%= newListItem[i] %></p><br />
+        <% } %>
+      </div>
+
+    </section>
+
+
+    <form class="" action="/to-do-list" method="post">
+      <input type="text" name="listItem">
+      <button type="submit" name="list" value= <%= listTitle %> >submit</button>
+    </form>
+
+<%- include("footer") -%>

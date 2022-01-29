@@ -1,0 +1,30 @@
+<%- include("header") -%>
+    <h1>Old School Love Calculator</h1>
+
+    <form class="" action="/fun/love-calculator" method="post">
+      <input type="text" name="num1" placeholder="Your Name" required autofocus>
+      <input type="text" name="num2" placeholder="Your Crush Name" required>
+      <button type="submit" name="submit">Calculate</button>
+    </form>
+
+    <% if(loveRateVariable){%>
+      <section>
+        <h1>Love Comptaibilty Rate is <%= loveRateVariable %> %</h1>
+        <%if(loveRateVariable < 25){ %>
+          <p>Your compatibilty rate is too low, I suggest You run away</p>
+        <%}else if(loveRateVariable < 50){%>
+          <p>Your compatibilty rate is low, Becareful!</p>
+        <%}else if(loveRateVariable < 75){%>
+          <p>Your compatibilty rate is medium, You should be okay and happy</p>
+        <%}else{%>
+          <p>Congratulation! Your compatibilty rate is high, Enjoy your relationship</p>
+        <%}%>
+
+      </section>
+
+    <% }else{}%>
+
+
+
+
+<%- include("footer") -%>
