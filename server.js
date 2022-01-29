@@ -58,9 +58,12 @@ app.post("/fun/bmi-calculator.html",(req, res)=>{
   }
   var weight = Number(req.body.weight);
   var height = Number(req.body.height);
-
-
-  res.send("Your BMI is " + bmiCalculator(weight,height));
+  if(bmiCalculator(weight, height)<1){
+    res.write("Please enter your Weights in kg and Height in meter");
+  }else{
+    res.write("Your BMI is " + bmiCalculator(weight,height))
+  }
+  res.send();
 })
 
 // ******* KANYE REST PAGE
