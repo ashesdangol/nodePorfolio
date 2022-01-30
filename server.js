@@ -1,8 +1,15 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const https = require("https");
+const _ = require("lodash");
 const date = require(__dirname+"/date.js");
 
+
+
+// ***** ejs challenges
+const homeStartingContent = "Share your story with the world. Stand out with a professionally-designed template that can be customized to fit your brand. Promote your blog and build your online presence with Squarespace's built-in suite of marketing tools.";
+const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pellentesque. Dictumst vestibulum rhoncus est pellentesque elit ullamcorper. Non diam phasellus vestibulum lorem sed. Platea dictumst quisque sagittis purus sit. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Mauris in aliquam sem fringilla. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Amet massa vitae tortor condimentum lacinia quis vel eros. Enim ut tellus elementum sagittis vitae. Mauris ultrices eros in cursus turpis massa tincidunt dui.";
+const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -11,11 +18,72 @@ app.use(bodyParser.urlencoded({extended:true}));
 // const port = 3000;
 // heroku port
 const port = process.env.PORT || 3000;
+const posts=[];
 
 app.get("/",(req, res)=>{
-  res.sendFile(__dirname+"/index.html");
+  // res.sendFile(__dirname+"/index.html");
+  res.render("home",{
+    titleName : "Ashes - Personal Site",
+    homeStartingConternVar:homeStartingContent,
+    posts:posts
+  });
+
+});
+
+app.get("/projects",(req, res)=>{
+  res.render("projects",{
+    titleName : "Projects",
+  });
+
+});
+
+app.get("/about-me",(req, res)=>{
+  res.render("about",{
+    titleName:"About me",
+    aboutContentVar: aboutContent
+  })
+});
+
+app.get("/contact-me",(req, res)=>{
+  res.render("contact",{
+    titleName:"Contact me",
+    contactContentVar: contactContent
+  })
+});
+
+app.get("/compose",(req, res)=>{
+  res.render("compose",{
+    titleName:"Compose Blog"
+  })
+});
+
+
+app.post("/compose",(req, res)=>{
+  const post = {
+    title: req.body.postTitle,
+    content: req.body.postBody
+  }
+  posts.push(post);
+  res.redirect("/");
+});
+
+app.get("/posts/:postName", (req, res)=>{
+  const requestPostTitle = _.lowerCase(req.params.postName);
+  posts.forEach(function(post){
+    const storedPost =_.lowerCase(post.title);
+    if(storedPost === requestPostTitle){
+      res.render("post",{
+          titleName:"Blog Post",
+          titlePostVar:post.title,
+          contentPostVar:post.content
+      });
+    }
+  })
+
 
 })
+
+
 
 app.get("/projects", (req, res)=>{
   res.send("<h1>lists of projects coming soon </h1>");
