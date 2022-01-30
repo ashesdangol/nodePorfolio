@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const https = require("https");
-
+const date = require(__dirname+"/date.js");
 
 
 const app = express();
@@ -193,22 +193,12 @@ app.get("/mysite",(req,res)=>{
   res.render('mySite',{foo : "FOO"});
 });
 
-var listItems = [];
-let workListItems = [];
-function todayDate(){
-  let date = new Date();
-  let currentDate = date.getDay();
-  const options = {
-        weekday: 'long',
-        // year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      };
-      return date.toLocaleDateString('en-us', options);
-}
+const listItems = [];
+const workListItems = [];
+
 
 app.get("/to-do-list",(req,res)=>{
-  let currentDay = todayDate();
+  let currentDay = date.weekDay();
   res.render('list',{kindOfDay : currentDay, newListItem : listItems, listTitle : "Home", titleName: "Todo List-Home"});
   // console.log(date.toLocaleString('en-US', options));
 });
@@ -226,7 +216,7 @@ app.post("/to-do-list",(req,res)=>{
 })
 
 app.get("/to-do-list-work", (req, res)=>{
-    let currentDay = todayDate();
+    let currentDay = date.todayDate();
     res.render('list',{kindOfDay : currentDay, newListItem : workListItems, listTitle : "Work",titleName: "Todo List-Work"});
 });
 
