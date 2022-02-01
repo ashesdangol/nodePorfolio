@@ -93,13 +93,13 @@ app.get("/projects", (req, res)=>{
 
 // ******FUN PAGE
 let loveRate = "";
-app.get("/fun/love-calculator", (req, res)=>{
+app.get("/love-calculator", (req, res)=>{
   res.render('love-calculator', {loveRateVariable: loveRate, titleName : "Love Calculator"});
 })
 
 
 
-app.post("/fun/love-calculator",(req, res)=>{
+app.post("/love-calculator",(req, res)=>{
   // tapping the vaules of FORM from request and body parser-parsed as text
   // console.log(req.body);
   // console.log(req.body.num1);
@@ -110,32 +110,32 @@ app.post("/fun/love-calculator",(req, res)=>{
   // res.send("Result of the calculation is " + result);
 
   loveRate = Math.round(Math.random()*101);
-  res.redirect("/fun/love-calculator");
+  res.redirect("/love-calculator");
 
 })
 
 let bmi='';
 
-app.get("/fun/bmi-calculator", (req, res)=>{
+app.get("/bmi-calculator", (req, res)=>{
   res.render("bmi-calculator",{
     titleName: "BMI Calculator",
     bmiVar: bmi
   });
 })
 
-app.post("/fun/bmi-calculator",(req, res)=>{
+app.post("/bmi-calculator",(req, res)=>{
   let weight = Number(req.body.weight);
   let height = Number(req.body.height);
 
   let rawBmi =  weight / Math.pow(height,2);
   bmi = Math.round(rawBmi *10) / 10;
-   res.redirect("/fun/bmi-calculator");
+   res.redirect("/bmi-calculator");
 
 })
 
 // ******* KANYE REST PAGE
 
-app.get("/apiUsage/kanye-quotes", (req,res)=>{
+app.get("/kanye-quotes", (req,res)=>{
   const urlKanye = "https://api.kanye.rest";
   https.get(urlKanye,(response)=>{
   response.on("data", (data)=>{
@@ -157,7 +157,7 @@ let iconUrl = "";
 let weatherLocation='';
 
 
-app.get("/apiUsage/check-weather", (req,res)=>{
+app.get("/check-weather", (req,res)=>{
   res.render('check-weather',{
     titleName: "Weather Check",
     weatherLocationVar: weatherLocation,
@@ -167,7 +167,7 @@ app.get("/apiUsage/check-weather", (req,res)=>{
   });
 });
 
-app.post("/apiUsage/check-weather", (req, res)=>{
+app.post("/check-weather", (req, res)=>{
 
   const weatherApiKey = "8d8d5ba8c9233eac60fa3e4ebad545c5";
   const weatherEndpoint = "https://api.openweathermap.org/data/2.5/weather";
@@ -183,7 +183,7 @@ app.post("/apiUsage/check-weather", (req, res)=>{
          description = weatherData.weather[0].description
         const icon = weatherData.weather[0].icon
          iconUrl = " http://openweathermap.org/img/wn/"+icon+"@2x.png"
-        res.redirect("/apiUsage/check-weather");
+        res.redirect("/check-weather");
 
       })
       }else{
