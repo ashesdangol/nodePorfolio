@@ -2,8 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const https = require("https");
 const _ = require("lodash");
-const date = require(__dirname+"/date.js");
+const mongoose = require('mongoose');
 
+const date = require(__dirname+"/date.js");
 
 
 // ***** ejs challenges
@@ -261,32 +262,142 @@ app.get("/mysite",(req,res)=>{
   res.render('mySite',{foo : "FOO"});
 });
 
-const listItems = [];
-const workListItems = [];
+
+
+
+  // mongodb://localhost:27017/test is the database
+  mongoose.connect('mongodb://localhost:27017/mySiteDB');
+  console.log("Connected successfully to server");
+
+// ###TO DO LIST SCHEMA
+  const itemSchema = new mongoose.Schema({
+    name: String
+  })
+
+  const Item = mongoose.model("Item", itemSchema);
+
+  const item1 = new Item({
+    name:"Welcome to your todolist!"
+  });
+  const item2 = new Item({
+    name:"Hit the submit button to add new item"
+  });
+  const item3 = new Item({
+    name:"Hit the delete button to delete an item"
+  });
+
+  const defaultItems = [item1, item2, item3];
+  const listSchema ={
+    name: String,
+    items: [itemSchema]
+  }
+
+  const List = mongoose.model("List", listSchema);
+
+// const listItems = [];
+// const workListItems = [];
 
 
 app.get("/to-do-list",(req,res)=>{
-  let currentDay = date.weekDay();
-  res.render('list',{kindOfDay : currentDay, newListItem : listItems, listTitle : "Home", titleName: "Todo List-Home"});
-  // console.log(date.toLocaleString('en-US', options));
+
+  Item.find({}, function(err, foundItems){
+      // console.log(foundItems);
+      if(foundItems.length === 0){
+        Item.insertMany(defaultItems, function(err){
+          if(err){
+            console.log(err);
+          }else{
+            console.log("Default Items are added to db");
+          }
+        });
+        res.redirect("/to-do-list");
+      }else{
+        res.render('list',{kindOfDay : "", newListItem : foundItems, listTitle : "Today", titleName: "To Do List"});
+      }
+
+  });
 });
+
+  let currentDay = date.weekDay();
+
+
+  // console.log(date.toLocaleString('en-US', options));
+// });
+
+app.get("/to-do-list/:customListName", function(req,res){
+  const customListName = _.capitalize(req.params.customListName);
+  List.findOne({name: customListName}, function(err, foundList){
+    if(!err){
+      if(!foundList){
+        // CREATE A NEW LIST
+        console.log("Doesnt exists");
+        const list = new List({
+          name:customListName,
+          items: defaultItems
+        });
+
+        list.save();
+        res.redirect("/to-do-list/"+customListName);
+      }else{
+        // SHOW EXISTING LIST
+        console.log("Document object exists");
+         res.render('list',{kindOfDay : currentDay, newListItem : foundList.items, listTitle : foundList.name, titleName: "To Do List"});
+      }
+    }
+  })
+
+
+});
+
 app.post("/to-do-list",(req,res)=>{
-  let listItem = req.body.listItem;
-  if(req.body.list == "Work"){
-    workListItems.push(listItem);
-    res.redirect("/to-do-list-work");
-  }else{
-    listItems.push(listItem);
+  const itemName = req.body.listItem;
+  const listName = req.body.list;
+
+  console.log(listName);
+  const item = new Item({
+    name:itemName
+  })
+
+  if(listName === "Today"){
+    item.save();
     res.redirect("/to-do-list");
+  }else{
+    List.findOne({name: listName}, function(err, foundList){
+      foundList.items.push(item);
+      foundList.save();
+      res.redirect("/to-do-list/"+listName);
+    });
+  }
+
+});
+app.post("/deleteListItem",(req,res)=>{
+  // console.log(req.body.itemChecked);
+  const checkedItemId = req.body.itemChecked;
+  const listName = req.body.listName;
+  if(listName==="Today"){
+    Item.findByIdAndRemove(checkedItemId, function(err){
+      if(err){
+        console.log("cannot delete");
+      }else{
+        console.log(checkedItemId+" deleted");
+        res.redirect("/to-do-list");
+      }
+    });
+  }else{
+    List.findOneAndUpdate({name:listName},{$pull:{items:{_id:checkedItemId}}},function(err, foundList){
+      if(!err){
+        res.redirect("/to-do-list/"+listName);
+      };
+    });
   }
 
 
-})
-
-app.get("/to-do-list-work", (req, res)=>{
-    let currentDay = date.todayDate();
-    res.render('list',{kindOfDay : currentDay, newListItem : workListItems, listTitle : "Work",titleName: "Todo List-Work"});
 });
+
+// app.get("/to-do-list-work", (req, res)=>{
+//     let currentDay = date.TodayDate();
+//     res.render('list',{kindOfDay : currentDay, newListItem : workListItems, listTitle : "Work",titleName: "Todo List-Work"});
+// });
 
 
 
