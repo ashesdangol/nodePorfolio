@@ -18,7 +18,10 @@ app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended:true}));
 // const port = 3000;
 // heroku port
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+};
 const posts=[];
 
 app.get("/",(req, res)=>{
@@ -266,7 +269,9 @@ app.get("/mysite",(req,res)=>{
 
 
   // mongodb://localhost:27017/test is the database
-  mongoose.connect('mongodb://localhost:27017/mySiteDB');
+  //   mongoose.connect('mongodb://localhost:27017/mySiteDB');
+  // mongodb+srv://<username>:<password>@cluster0.v6hgh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+  
   console.log("Connected successfully to server");
 
 // ###TO DO LIST SCHEMA
